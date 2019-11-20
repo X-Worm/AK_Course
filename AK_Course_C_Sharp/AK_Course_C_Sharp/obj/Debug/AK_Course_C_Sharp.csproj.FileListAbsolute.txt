@@ -1,0 +1,6 @@
+C:\Users\Vasyl\source\repos\AK_Course_C_Sharp\AK_Course_C_Sharp\bin\Debug\AK_Course_C_Sharp.exe.config
+C:\Users\Vasyl\source\repos\AK_Course_C_Sharp\AK_Course_C_Sharp\bin\Debug\AK_Course_C_Sharp.exe
+C:\Users\Vasyl\source\repos\AK_Course_C_Sharp\AK_Course_C_Sharp\bin\Debug\AK_Course_C_Sharp.pdb
+C:\Users\Vasyl\source\repos\AK_Course_C_Sharp\AK_Course_C_Sharp\obj\Debug\AK_Course_C_Sharp.csprojAssemblyReference.cache
+C:\Users\Vasyl\source\repos\AK_Course_C_Sharp\AK_Course_C_Sharp\obj\Debug\AK_Course_C_Sharp.exe
+C:\Users\Vasyl\source\repos\AK_Course_C_Sharp\AK_Course_C_Sharp\obj\Debug\AK_Course_C_Sharp.pdb
