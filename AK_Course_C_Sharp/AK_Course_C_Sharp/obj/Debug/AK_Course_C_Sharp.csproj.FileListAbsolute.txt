@@ -4,3 +4,10 @@ C:\Users\Vasyl\source\repos\AK_Course_C_Sharp\AK_Course_C_Sharp\bin\Debug\AK_Cou
 C:\Users\Vasyl\source\repos\AK_Course_C_Sharp\AK_Course_C_Sharp\obj\Debug\AK_Course_C_Sharp.csprojAssemblyReference.cache
 C:\Users\Vasyl\source\repos\AK_Course_C_Sharp\AK_Course_C_Sharp\obj\Debug\AK_Course_C_Sharp.exe
 C:\Users\Vasyl\source\repos\AK_Course_C_Sharp\AK_Course_C_Sharp\obj\Debug\AK_Course_C_Sharp.pdb
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\AK_Course_C_Sharp\bin\Debug\AK_Course_C_Sharp.exe.config
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\AK_Course_C_Sharp\bin\Debug\AK_Course_C_Sharp.exe
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\AK_Course_C_Sharp\bin\Debug\AK_Course_C_Sharp.pdb
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\AK_Course_C_Sharp\obj\Debug\AK_Course_C_Sharp.csprojAssemblyReference.cache
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\AK_Course_C_Sharp\obj\Debug\AK_Course_C_Sharp.csproj.CoreCompileInputs.cache
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\AK_Course_C_Sharp\obj\Debug\AK_Course_C_Sharp.exe
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\AK_Course_C_Sharp\obj\Debug\AK_Course_C_Sharp.pdb

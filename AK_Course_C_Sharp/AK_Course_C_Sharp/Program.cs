@@ -10,6 +10,7 @@ namespace AK_Course_C_Sharp
     {
         static void Main(string[] args)
         {
+            ASOL.Exec();
         }
     }
 }

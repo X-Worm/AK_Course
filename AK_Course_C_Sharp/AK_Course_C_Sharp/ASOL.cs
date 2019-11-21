@@ -9,6 +9,18 @@ namespace AK_Course_C_Sharp
 {
     public class ASOL
     {
+        public enum KeyWord
+        {
+            ADD = 0,
+            NAND,
+            LW,
+            SW,
+            BEQ,
+            JARL,
+            HALT,
+            MUL
+        }
+
         public static List<string> opCodeList = new List<string>
         {
             "add", "nand", "lw", "sw", "beq", "jarl", "halt", "mul", ".fill", "sl"
@@ -28,8 +40,8 @@ namespace AK_Course_C_Sharp
 
             int i;
             int numLabels = 0;
-            int num;
-            int addressField;
+            int num = 0;
+            int addressField = 0;
 
             Console.WriteLine("Input file code path: ");
             inFileString = Console.ReadLine();
@@ -50,7 +62,7 @@ namespace AK_Course_C_Sharp
             inFilePtr = new StreamReader(inFileString);
             outFilePtr = new StreamWriter(outFileString);
 
-            for (address = 0; ReadAndParse(inFilePtr, label, opcode, arg0, arg1, arg2); address++)
+            for (address = 0; ReadAndParse(inFilePtr,ref label,ref opcode,ref arg0,ref arg1,ref arg2); address++)
             {
                 // check for illegal opcode
                 if (!opCodeList.Contains(opcode))
@@ -84,14 +96,14 @@ namespace AK_Course_C_Sharp
                 }
 
                 // check for enough arguments
-                if ((opcode != "halt" && opcode != ".fill" && opcode != "jarl" && arg2[0] != '\0')
+                if ((opcode != "halt" && opcode != ".fill" && opcode != "jarl" && arg2[0] == '\0')
                     || (opcode == "jarl" && arg1[0] == '\0') || (opcode == ".fill" && arg0[0] == '\0'))
                 {
                     Console.WriteLine($"error: at address: {address} not enough arguments");
                     Environment.Exit(1);
                 }
 
-                if (label[0] != '\0')
+                if (label != "" )
                 {
                     // make sure label starts with letter
                     if (!Char.IsLetter(label[0]))
@@ -117,21 +129,106 @@ namespace AK_Course_C_Sharp
                         }
                     }
 
-                    labelArray[numLabels] = label;
-                    labelAddress[numLabels++] = address;
+                    labelArray.Add(label);
+                    labelAddress.Add(address);
                 }
             }
 
             // print machine code
-            inFilePtr = new StreamReader(inFileString);
-            for(address = 0; ReadAndParse(inFilePtr, label, opcode, arg0, arg1, arg2); address++)
-            {
 
+            // set stream
+            inFilePtr = new StreamReader(inFileString);
+            for(address = 0; ReadAndParse(inFilePtr,ref label,ref opcode,ref arg0,ref arg1,ref arg2); address++)
+            {
+                if(opcode == "add")
+                {
+                    num = ((Parse(KeyWord.ADD) << 22) | (Int32.Parse(arg0) << 19) | (Int32.Parse(arg1) << 16) | Int32.Parse(arg2));
+                }
+                else if(opcode == "nand")
+                {
+                    num = ((Parse(KeyWord.NAND) >> 22) | (Int32.Parse(arg0) << 19) | (Int32.Parse(arg1) << 16) | Int32.Parse(arg2));
+                }
+                else if(opcode == "jarl")
+                {
+                    num = (Parse(KeyWord.JARL) << 22) | Int32.Parse(arg0) << 19 | Int32.Parse(arg1) << 16;
+                }
+                else if(opcode == "halt")
+                {
+                    num = Parse(KeyWord.HALT) << 22;
+                }
+                else if(opcode == "mul")
+                {
+                    num = ((Parse(KeyWord.MUL) << 22) | (Int32.Parse(arg0) << 19) | (Int32.Parse(arg1) << 16) | Int32.Parse(arg2));
+                }
+
+                else if(opcode == "lw" || opcode == "sw" || opcode == "beq")
+                {
+                    // if arg2 is symbolic then translate into an address
+                    if (arg2.All(item => Char.IsLetter(item)))
+                    {
+                        addressField = transalateSymbol(labelArray, labelAddress, numLabels, arg2);
+
+                        if (opcode == "beq")
+                        {
+                            addressField = addressField - address - 1;
+                        }
+                    }
+                    else addressField = Int32.Parse(arg2);
+
+                    if(addressField < -32768 || addressField > 32767)
+                    {
+                        Console.WriteLine($"error: offset {addressField} out of range\n");
+                        Environment.Exit(1);
+                    }
+
+                    // truncate the offset field, in case its negative
+                    addressField = addressField & 0xFFFF;
+
+                    if(opcode == "beq")
+                    {
+                        num = (Parse(KeyWord.BEQ) << 22) | (Int32.Parse(arg0) << 19) | (Int32.Parse(arg1) << 16) 
+                            | addressField;
+                    }
+                    else
+                    {
+                        // lw or sw
+                        if(opcode == "lw")
+                        {
+                            num = (Parse(KeyWord.LW) << 22) | (Int32.Parse(arg0) << 19) |
+                                (Int32.Parse(arg1) << 16) | addressField;
+                        }
+                        else
+                        {
+                            num = (Parse(KeyWord.SW) << 22) | (Int32.Parse(arg0) << 19) |
+                                (Int32.Parse(arg1) << 16) | addressField;
+                        }
+                    }
+                }
+                else if(opcode == ".fill")
+                {
+                    if(arg0.All(item => Char.IsDigit(item)))
+                    {
+                        num = transalateSymbol(labelArray, labelAddress, numLabels, arg0);
+                    }
+                    else
+                    {
+                        num = Int32.Parse(arg0);
+                    }
+                }
+                outFilePtr.WriteLine(num.ToString());
             }
+            outFilePtr.WriteLine("proposal");
+            
+            Environment.Exit(1);
 
         }
 
-        public static bool ReadAndParse(StreamReader streamReader, string label, string opcode, string arg0, string arg1, string arg2)
+        public static int Parse(KeyWord keyWord)
+        {
+            return (int)keyWord;
+        }
+
+        public static bool ReadAndParse(StreamReader streamReader,ref string label,ref string opcode,ref string arg0,ref string arg1,ref string arg2)
         {
             string line;
             string ptr = "";
@@ -144,11 +241,11 @@ namespace AK_Course_C_Sharp
             var local = line.Split(' ');
 
             // set label
-            label = (local[0] != null) ? local[0] : "";
-            opcode = (local[0] != null) ? local[0] : "";
-            arg0 = (local[0] != null) ? local[0] : "";
-            arg1 = (local[0] != null) ? local[0] : "";
-            arg2 = (local[0] != null) ? local[0] : "";
+            label = (local.Length >= 1 && local[0] != null) ? local[0] : "";
+            opcode = (local.Length >= 2 && local[1] != null) ? local[1] : "";
+            arg0 = (local.Length >= 3 && local[2] != null) ? local[2] : "";
+            arg1 = (local.Length >= 4 && local[3] != null) ? local[3] : "";
+            arg2 = (local.Length >= 5 && local[4] != null) ? local[4] : "";
 
             return true;
         }
