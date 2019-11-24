@@ -17,7 +17,19 @@ namespace AK_Course_C_Sharp
             int i = 0;
             string line = "";
             State state = new State();
-            StreamReader streamReader = new StreamReader(@"C:\log\program.mc");
+
+            Console.Write("Input path to machine code: ");
+            string filePath = Console.ReadLine();
+            StreamReader streamReader = null;
+            try
+            {
+                streamReader = new StreamReader(filePath);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return;
+            }
 
             for(i = 0; i < 65536; i++)
             {
@@ -73,7 +85,18 @@ namespace AK_Course_C_Sharp
 
         public static void Run(State state)
         {
-            StreamWriter writer = new StreamWriter(@"C:\log\report.txt");
+            Console.Write("Input file for report: ");
+            string filePath = Console.ReadLine();
+            StreamWriter writer = null;
+            try
+            {
+                writer = new StreamWriter(filePath);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return;
+            }
             int arg0 = 0, arg1 = 0, arg2 = 0, addressField = 0;
             int instructions = 0;
             int opCode = 0;
@@ -163,7 +186,8 @@ namespace AK_Course_C_Sharp
                     writer.WriteLine($"total of {instructions + 1} instructions executed");
                     writer.WriteLine("final state of machine:");
                     PrintState(state,ref writer);
-                    Environment.Exit(-1);
+                    writer.Close();
+                    return;
                 }
                 else
                 {

@@ -49,33 +49,27 @@ namespace AK_Course_C_Sharp
             Console.Write("Input parent directory for .as and .mc files: ");
             string fileDirectory = "";
             fileDirectory = Console.ReadLine();
-            fileDirectory += "\\" + DateTime.UtcNow.ToString("yyyy_MM_dd");
 
             Console.Write("Input name for code file: ");
             string codeFilePath = Console.ReadLine();
 
             try
             {
-                inFileString = fileDirectory + "\\" + "code_" + DateTime.UtcNow.ToString("yyyy_MM_dd___hh_mm_ss") + ".as";
+                inFileString = Path.Combine(fileDirectory, codeFilePath);
                 Console.WriteLine($"File code path: {inFileString}");
                 Directory.CreateDirectory(fileDirectory);
-                var localFile = File.Create(inFileString);
-                localFile.Close();
 
-                if (!File.Exists(Path.Combine( codeFilePath)))
-                    throw new Exception($"File: {codeFilePath} not exist ");
-                // copy file data
-                string content = File.ReadAllText(codeFilePath);
-                File.WriteAllText(inFileString, content);
+                if (!File.Exists(inFileString))
+                    throw new Exception("File not exists");
             } catch(Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                Thread.Sleep(5000); Environment.Exit(1);
+                return;
             }
 
             try
             {
-                outFileString = fileDirectory + "\\" + "machineCode_" + DateTime.UtcNow.ToString("yyyy_MM_dd___hh_mm_ss") + ".mc";
+                outFileString = fileDirectory + "\\" + "machineCode" + ".mc";
                 Console.WriteLine($"Machine file path: {outFileString}");
                 Directory.CreateDirectory(fileDirectory);
                 var localFile = File.Create(outFileString);
@@ -98,7 +92,7 @@ namespace AK_Course_C_Sharp
                 Thread.Sleep(2000); Environment.Exit(1);
             }
             inFilePtr = new StreamReader(inFileString);
-            //outFilePtr = new StreamWriter(outFileString);
+            outFilePtr = new StreamWriter(outFileString);
 
             for (address = 0; ReadAndParse(inFilePtr,ref label,ref opcode,ref arg0,ref arg1,ref arg2); address++)
             {
@@ -244,7 +238,7 @@ namespace AK_Course_C_Sharp
                 }
                 else if(opcode == ".fill")
                 {
-                    if(arg0.All(item => Char.IsDigit(item)))
+                    if(arg0.All(item => Char.IsLetter(item)))
                     {
                         num = transalateSymbol(labelArray, labelAddress, numLabels, arg0);
                     }
@@ -253,12 +247,12 @@ namespace AK_Course_C_Sharp
                         num = Int32.Parse(arg0);
                     }
                 }
-                File.AppendAllText(outFileString, num.ToString() + "\n");
+                //File.AppendAllText(outFileString, num.ToString() + "\n");
                 
-                //outFilePtr.WriteLine(num.ToString());
+                outFilePtr.WriteLine(num.ToString());
             }
             //outFilePtr.WriteLine("proposal");
-            //outFilePtr.Close();
+            outFilePtr.Close();
             
             Thread.Sleep(2000); Environment.Exit(1);
 
@@ -346,11 +340,11 @@ namespace AK_Course_C_Sharp
         public static int transalateSymbol(List<string> labelArray, List<int> labelAddress, int numLabels, string symbol)
         {
             int i;
-
+            numLabels = labelArray.Count();
             // search through address label table
-            for(i = 0; (i < numLabels) && symbol != labelArray[i]; i++)
+            for(i = 0; i < numLabels; i++)
             {
-
+                if (symbol == labelArray[i]) break;
             }
 
             if(i > numLabels)

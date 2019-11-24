@@ -25,7 +25,14 @@ namespace AK_Course_C_Sharp
                 Console.WriteLine("1: to Assembly program:");
                 Console.WriteLine("2: to Simulae code:");
                 Console.Write("Input chioce: ");
-                choice = Convert.ToInt32( Console.ReadLine());
+                try
+                {
+                    choice = Convert.ToInt32(Console.ReadLine());
+                }catch(Exception ex)
+                {
+                    Console.WriteLine("Invalid choice");
+                    continue;
+                }
 
                 switch (choice)
                 {
