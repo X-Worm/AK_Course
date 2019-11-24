@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using Xceed.Wpf.Toolkit;
 
 namespace AK_Course_C_Sharp
 {
@@ -43,24 +46,59 @@ namespace AK_Course_C_Sharp
             int num = 0;
             int addressField = 0;
 
-            Console.WriteLine("Input file code path: ");
-            inFileString = Console.ReadLine();
+            Console.Write("Input parent directory for .as and .mc files: ");
+            string fileDirectory = "";
+            fileDirectory = Console.ReadLine();
+            fileDirectory += "\\" + DateTime.UtcNow.ToString("yyyy_MM_dd");
 
-            Console.WriteLine("Input machine file path: ");
-            outFileString = Console.ReadLine();
+            Console.Write("Input name for code file: ");
+            string codeFilePath = Console.ReadLine();
+
+            try
+            {
+                inFileString = fileDirectory + "\\" + "code_" + DateTime.UtcNow.ToString("yyyy_MM_dd___hh_mm_ss") + ".as";
+                Console.WriteLine($"File code path: {inFileString}");
+                Directory.CreateDirectory(fileDirectory);
+                var localFile = File.Create(inFileString);
+                localFile.Close();
+
+                if (!File.Exists(Path.Combine( codeFilePath)))
+                    throw new Exception($"File: {codeFilePath} not exist ");
+                // copy file data
+                string content = File.ReadAllText(codeFilePath);
+                File.WriteAllText(inFileString, content);
+            } catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Thread.Sleep(5000); Environment.Exit(1);
+            }
+
+            try
+            {
+                outFileString = fileDirectory + "\\" + "machineCode_" + DateTime.UtcNow.ToString("yyyy_MM_dd___hh_mm_ss") + ".mc";
+                Console.WriteLine($"Machine file path: {outFileString}");
+                Directory.CreateDirectory(fileDirectory);
+                var localFile = File.Create(outFileString);
+                localFile.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Thread.Sleep(5000); Environment.Exit(1);
+            }
 
             if (!File.Exists(inFileString))
             {
                 Console.WriteLine($"error: file: {inFileString} not exist\n");
-                Environment.Exit(1);
+                Thread.Sleep(2000); Environment.Exit(1);
             }
             if (!File.Exists(outFileString))
             {
                 Console.WriteLine($"error: file: {outFileString} not exists\n");
-                Environment.Exit(1);
+                Thread.Sleep(2000); Environment.Exit(1);
             }
             inFilePtr = new StreamReader(inFileString);
-            outFilePtr = new StreamWriter(outFileString);
+            //outFilePtr = new StreamWriter(outFileString);
 
             for (address = 0; ReadAndParse(inFilePtr,ref label,ref opcode,ref arg0,ref arg1,ref arg2); address++)
             {
@@ -68,7 +106,7 @@ namespace AK_Course_C_Sharp
                 if (!opCodeList.Contains(opcode))
                 {
                     Console.WriteLine($"error: invalid opcode: {opcode}\n");
-                    Environment.Exit(1);
+                    Thread.Sleep(2000); Environment.Exit(1);
                 }
 
                 // check register fields
@@ -100,7 +138,7 @@ namespace AK_Course_C_Sharp
                     || (opcode == "jarl" && arg1[0] == '\0') || (opcode == ".fill" && arg0[0] == '\0'))
                 {
                     Console.WriteLine($"error: at address: {address} not enough arguments");
-                    Environment.Exit(1);
+                    Thread.Sleep(2000); Environment.Exit(1);
                 }
 
                 if (label != "" )
@@ -109,14 +147,14 @@ namespace AK_Course_C_Sharp
                     if (!Char.IsLetter(label[0]))
                     {
                         Console.WriteLine($"error: label: {label} doesnt start with letter\n");
-                        Environment.Exit(1);
+                        Thread.Sleep(2000); Environment.Exit(1);
                     }
 
                     // Make sure label consists only from letters and numbers
                     if (!label.All(item => Char.IsLetterOrDigit(item)))
                     {
                         Console.WriteLine($"error: label: {label} has character other than letters and numbers\n");
-                        Environment.Exit(1);
+                        Thread.Sleep(2000); Environment.Exit(1);
                     }
 
                     // look for duplicate label
@@ -125,7 +163,7 @@ namespace AK_Course_C_Sharp
                         if(label == labelArray[i])
                         {
                             Console.WriteLine($"error: duplicate label: {label} at address: {address}");
-                            Environment.Exit(1);
+                            Thread.Sleep(2000); Environment.Exit(1);
                         }
                     }
 
@@ -178,7 +216,7 @@ namespace AK_Course_C_Sharp
                     if(addressField < -32768 || addressField > 32767)
                     {
                         Console.WriteLine($"error: offset {addressField} out of range\n");
-                        Environment.Exit(1);
+                        Thread.Sleep(2000); Environment.Exit(1);
                     }
 
                     // truncate the offset field, in case its negative
@@ -215,11 +253,14 @@ namespace AK_Course_C_Sharp
                         num = Int32.Parse(arg0);
                     }
                 }
-                outFilePtr.WriteLine(num.ToString());
+                File.AppendAllText(outFileString, num.ToString() + "\n");
+                
+                //outFilePtr.WriteLine(num.ToString());
             }
-            outFilePtr.WriteLine("proposal");
+            //outFilePtr.WriteLine("proposal");
+            //outFilePtr.Close();
             
-            Environment.Exit(1);
+            Thread.Sleep(2000); Environment.Exit(1);
 
         }
 
@@ -269,13 +310,13 @@ namespace AK_Course_C_Sharp
             if (!isRight)
             {
                 Console.WriteLine("error: Incorect arg\n");
-                Environment.Exit(1);
+                Thread.Sleep(2000); Environment.Exit(1);
             }
 
             if(argNum < 0 || argNum > 7)
             {
                 Console.WriteLine("error: register out of range\n");
-                Environment.Exit(1);
+                Thread.Sleep(2000); Environment.Exit(1);
             }
         }
 
@@ -297,7 +338,7 @@ namespace AK_Course_C_Sharp
                 if (!isLetterOnly)
                 {
                     Console.WriteLine("error: bad character in addressField\n");
-                    Environment.Exit(1);
+                    Thread.Sleep(2000); Environment.Exit(1);
                 }
             }
         }
@@ -315,7 +356,7 @@ namespace AK_Course_C_Sharp
             if(i > numLabels)
             {
                 Console.WriteLine($"error: missing label {symbol}\n");
-                Environment.Exit(1);
+                Thread.Sleep(2000); Environment.Exit(1);
             }
 
             return (labelAddress[i]);
