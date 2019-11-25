@@ -2,31 +2,48 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using Xceed.Wpf.Toolkit;
+
 
 namespace AK_Course_C_Sharp
 {
+
     public class ASOL
     {
+        public static int MaxNunLabels = 16777216;
+        public static int RegNumbers = 64;
+        public static int BusLength = 48;
+        public static int MinAddressField = -8388608, MaxAddressField = 8388607;
+
         public enum KeyWord
         {
             ADD = 0,
-            NAND,
-            LW,
-            SW,
-            BEQ,
-            JARL,
-            HALT,
-            MUL
+            NAND = 1,
+            LW = 2,
+            SW = 3,
+            BEQ = 4,
+            JARL = 5,
+            HALT = 6,
+            MUL,
+            XADD,
+            XIDIV,
+            XSUB,
+            XOR,
+            CMPE,
+            SAR,
+            JMA,
+            JML,
+            ADC,
+            SBB,
+            RCR
         }
 
         public static List<string> opCodeList = new List<string>
         {
-            "add", "nand", "lw", "sw", "beq", "jarl", "halt", "mul", ".fill", "sl"
+            "add", "nand", "lw", "sw", "beq", "jarl", "halt", "mul", ".fill", "sl", "xadd", "xidiv", "xsub", "xor", "cmpe", "sar", "jma", "jml", "adc", "sbb", "rcr"
         };
 
         public static void Exec()
@@ -43,8 +60,8 @@ namespace AK_Course_C_Sharp
 
             int i;
             int numLabels = 0;
-            int num = 0;
-            int addressField = 0;
+            BigInteger num = 0;
+            BigInteger addressField = 0;
 
             Console.Write("Input parent directory for .as and .mc files: ");
             string fileDirectory = "";
@@ -100,19 +117,26 @@ namespace AK_Course_C_Sharp
                 if (!opCodeList.Contains(opcode))
                 {
                     Console.WriteLine($"error: invalid opcode: {opcode}\n");
-                    Thread.Sleep(2000); Environment.Exit(1);
+                    return;
                 }
 
                 // check register fields
-                if (opcode == "add" || opcode == "nand" || opcode == "lw" ||
-                    opcode == "sw" || opcode == "beq" || opcode == "jarl" ||
-                    opcode == "mul" || opcode == "sl")
+                List<string> testArg0Arg1 = new List<string>
+                {
+                    "add", "nand", "lw", "sw", "beq", "jarl", "mul", "sl", "xadd",
+                    "xidiv", "xsub", "xor", "cmpe", "sar", "jma", "jml" ,"adc", "sbb", "rcr"
+                };
+                if (testArg0Arg1.Contains(opcode))
                 {
                     testRegArg(arg0);
                     testRegArg(arg1);
                 }
-                if (opcode == "add" || opcode == "nand" || opcode == "mul" ||
-                    opcode == "sl")
+                List<string> testArg2 = new List<string>
+                {
+                    "add", "nand", "mul", "sl", "xadd",
+                    "xidiv", "xsub", "xor", "cmpe", "sar" ,"adc", "sbb", "rcr"
+                };
+                if (testArg2.Contains(opcode))
                 {
                     testRegArg(arg2);
                 }
@@ -128,11 +152,12 @@ namespace AK_Course_C_Sharp
                 }
 
                 // check for enough arguments
-                if ((opcode != "halt" && opcode != ".fill" && opcode != "jarl" && arg2[0] == '\0')
-                    || (opcode == "jarl" && arg1[0] == '\0') || (opcode == ".fill" && arg0[0] == '\0'))
+                if ((opcode != "halt" && opcode != ".fill" && opcode != "jarl" 
+                    &&  opcode != "jma" && opcode != "jml" && arg2 == "")
+                    || (opcode == "jarl" && arg1 == "") || (opcode == ".fill" && arg0 == ""))
                 {
                     Console.WriteLine($"error: at address: {address} not enough arguments");
-                    Thread.Sleep(2000); Environment.Exit(1);
+                    return;
                 }
 
                 if (label != "" )
@@ -141,14 +166,14 @@ namespace AK_Course_C_Sharp
                     if (!Char.IsLetter(label[0]))
                     {
                         Console.WriteLine($"error: label: {label} doesnt start with letter\n");
-                        Thread.Sleep(2000); Environment.Exit(1);
+                        return;
                     }
 
                     // Make sure label consists only from letters and numbers
                     if (!label.All(item => Char.IsLetterOrDigit(item)))
                     {
                         Console.WriteLine($"error: label: {label} has character other than letters and numbers\n");
-                        Thread.Sleep(2000); Environment.Exit(1);
+                        return;
                     }
 
                     // look for duplicate label
@@ -157,7 +182,7 @@ namespace AK_Course_C_Sharp
                         if(label == labelArray[i])
                         {
                             Console.WriteLine($"error: duplicate label: {label} at address: {address}");
-                            Thread.Sleep(2000); Environment.Exit(1);
+                            return;
                         }
                     }
 
@@ -174,23 +199,60 @@ namespace AK_Course_C_Sharp
             {
                 if(opcode == "add")
                 {
-                    num = ((Parse(KeyWord.ADD) << 22) | (Int32.Parse(arg0) << 19) | (Int32.Parse(arg1) << 16) | Int32.Parse(arg2));
+                    num = ((Parse(KeyWord.ADD) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
                 }
                 else if(opcode == "nand")
                 {
-                    num = ((Parse(KeyWord.NAND) >> 22) | (Int32.Parse(arg0) << 19) | (Int32.Parse(arg1) << 16) | Int32.Parse(arg2));
+                    num = ((Parse(KeyWord.NAND) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                }
+                else if (opcode == "xadd")
+                {
+                    num = ((Parse(KeyWord.XADD) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                }
+                else if (opcode == "xidiv")
+                {
+                    num = ((Parse(KeyWord.XIDIV) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                }
+                else if (opcode == "xsub")
+                {
+                    num = ((Parse(KeyWord.XSUB) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                }
+                else if (opcode == "xor")
+                {
+                    num = ((Parse(KeyWord.XOR) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                }
+                else if (opcode == "cmpe")
+                {
+                    num = ((Parse(KeyWord.CMPE) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                }
+                else if (opcode == "sar")
+                {
+                    num = ((Parse(KeyWord.SAR) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                }
+                else if (opcode == "adc")
+                {
+                    num = ((Parse(KeyWord.ADC) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                }
+                else if (opcode == "sbb")
+                {
+                    num = ((Parse(KeyWord.SBB) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                }
+                else if (opcode == "RCR")
+                {
+                    num = ((Parse(KeyWord.RCR) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
                 }
                 else if(opcode == "jarl")
                 {
-                    num = (Parse(KeyWord.JARL) << 22) | Int32.Parse(arg0) << 19 | Int32.Parse(arg1) << 16;
+                    num = (Parse(KeyWord.JARL) << 36) | Int64.Parse(arg0) << 30 | Int64.Parse(arg1) << 24;
                 }
                 else if(opcode == "halt")
                 {
-                    num = Parse(KeyWord.HALT) << 22;
+                   BigInteger loc = Parse(KeyWord.HALT);
+                   num = (loc << 36);
                 }
                 else if(opcode == "mul")
                 {
-                    num = ((Parse(KeyWord.MUL) << 22) | (Int32.Parse(arg0) << 19) | (Int32.Parse(arg1) << 16) | Int32.Parse(arg2));
+                    num = ((Parse(KeyWord.MUL) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
                 }
 
                 else if(opcode == "lw" || opcode == "sw" || opcode == "beq")
@@ -207,10 +269,10 @@ namespace AK_Course_C_Sharp
                     }
                     else addressField = Int32.Parse(arg2);
 
-                    if(addressField < -32768 || addressField > 32767)
+                    if(addressField < MinAddressField || addressField > MaxAddressField)
                     {
                         Console.WriteLine($"error: offset {addressField} out of range\n");
-                        Thread.Sleep(2000); Environment.Exit(1);
+                        return;
                     }
 
                     // truncate the offset field, in case its negative
@@ -218,7 +280,7 @@ namespace AK_Course_C_Sharp
 
                     if(opcode == "beq")
                     {
-                        num = (Parse(KeyWord.BEQ) << 22) | (Int32.Parse(arg0) << 19) | (Int32.Parse(arg1) << 16) 
+                        num = (Parse(KeyWord.BEQ) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) 
                             | addressField;
                     }
                     else
@@ -226,13 +288,13 @@ namespace AK_Course_C_Sharp
                         // lw or sw
                         if(opcode == "lw")
                         {
-                            num = (Parse(KeyWord.LW) << 22) | (Int32.Parse(arg0) << 19) |
-                                (Int32.Parse(arg1) << 16) | addressField;
+                            num = (Parse(KeyWord.LW) << 36) | (Int64.Parse(arg0) << 30) |
+                                (Int64.Parse(arg1) << 24) | addressField;
                         }
                         else
                         {
-                            num = (Parse(KeyWord.SW) << 22) | (Int32.Parse(arg0) << 19) |
-                                (Int32.Parse(arg1) << 16) | addressField;
+                            num = (Parse(KeyWord.SW) << 36) | (Int64.Parse(arg0) << 30) |
+                                (Int64.Parse(arg1) << 24) | addressField;
                         }
                     }
                 }
@@ -253,14 +315,14 @@ namespace AK_Course_C_Sharp
             }
             //outFilePtr.WriteLine("proposal");
             outFilePtr.Close();
-            
-            Thread.Sleep(2000); Environment.Exit(1);
+
+            return;
 
         }
 
-        public static int Parse(KeyWord keyWord)
+        public static Int64 Parse(KeyWord keyWord)
         {
-            return (int)keyWord;
+            return (Int64)keyWord;
         }
 
         public static bool ReadAndParse(StreamReader streamReader,ref string label,ref string opcode,ref string arg0,ref string arg1,ref string arg2)
@@ -307,10 +369,10 @@ namespace AK_Course_C_Sharp
                 Thread.Sleep(2000); Environment.Exit(1);
             }
 
-            if(argNum < 0 || argNum > 7)
+            if(argNum < 0 || argNum >= RegNumbers)
             {
                 Console.WriteLine("error: register out of range\n");
-                Thread.Sleep(2000); Environment.Exit(1);
+                return;
             }
         }
 
@@ -332,7 +394,7 @@ namespace AK_Course_C_Sharp
                 if (!isLetterOnly)
                 {
                     Console.WriteLine("error: bad character in addressField\n");
-                    Thread.Sleep(2000); Environment.Exit(1);
+                    return;
                 }
             }
         }
@@ -350,7 +412,7 @@ namespace AK_Course_C_Sharp
             if(i > numLabels)
             {
                 Console.WriteLine($"error: missing label {symbol}\n");
-                Thread.Sleep(2000); Environment.Exit(1);
+                throw new Exception($"error: missing label {symbol}\n");
             }
 
             return (labelAddress[i]);
