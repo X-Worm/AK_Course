@@ -13,11 +13,29 @@ namespace AK_Course_C_Sharp
 
     public class ASOL
     {
-        public static int MaxNunLabels = 16777216;
+        /// <summary>
+        /// max program size
+        /// </summary>
+        public static int MaxNumLabels = 16777216;
+
+        /// <summary>
+        /// number of registers
+        /// </summary>
         public static int RegNumbers = 64;
+
+        /// <summary>
+        /// length of bus
+        /// </summary>
         public static int BusLength = 48;
+
+        /// <summary>
+        /// min and max address field
+        /// </summary>
         public static int MinAddressField = -8388608, MaxAddressField = 8388607;
 
+        /// <summary>
+        /// key word
+        /// </summary>
         public enum KeyWord
         {
             ADD = 0,
@@ -27,18 +45,18 @@ namespace AK_Course_C_Sharp
             BEQ = 4,
             JARL = 5,
             HALT = 6,
-            MUL,
-            XADD,
-            XIDIV,
-            XSUB,
-            XOR,
-            CMPE,
-            SAR,
-            JMA,
-            JML,
-            ADC,
-            SBB,
-            RCR
+            MUL = 7,
+            XADD = 8,
+            XIDIV = 9,
+            XSUB = 10,
+            XOR = 11,
+            CMPE = 12,
+            SAR = 13,
+            JMA = 14,
+            JML = 15,
+            ADC = 16,
+            SBB = 17,
+            RCR = 18
         }
 
         public static List<string> opCodeList = new List<string>
@@ -237,7 +255,7 @@ namespace AK_Course_C_Sharp
                 {
                     num = ((Parse(KeyWord.SBB) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
                 }
-                else if (opcode == "RCR")
+                else if (opcode == "rcr")
                 {
                     num = ((Parse(KeyWord.RCR) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
                 }
@@ -255,7 +273,7 @@ namespace AK_Course_C_Sharp
                     num = ((Parse(KeyWord.MUL) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
                 }
 
-                else if(opcode == "lw" || opcode == "sw" || opcode == "beq")
+                else if(opcode == "lw" || opcode == "sw" || opcode == "beq" || opcode == "jma" || opcode == "jml")
                 {
                     // if arg2 is symbolic then translate into an address
                     if (arg2.All(item => Char.IsLetter(item)))
@@ -267,7 +285,7 @@ namespace AK_Course_C_Sharp
                             addressField = addressField - address - 1;
                         }
                     }
-                    else addressField = Int32.Parse(arg2);
+                    else addressField = Int64.Parse(arg2);
 
                     if(addressField < MinAddressField || addressField > MaxAddressField)
                     {
@@ -306,7 +324,7 @@ namespace AK_Course_C_Sharp
                     }
                     else
                     {
-                        num = Int32.Parse(arg0);
+                        num = Int64.Parse(arg0);
                     }
                 }
                 //File.AppendAllText(outFileString, num.ToString() + "\n");
@@ -366,13 +384,13 @@ namespace AK_Course_C_Sharp
             if (!isRight)
             {
                 Console.WriteLine("error: Incorect arg\n");
-                Thread.Sleep(2000); Environment.Exit(1);
+                throw new Exception("error: Incorect arg\n");
             }
 
             if(argNum < 0 || argNum >= RegNumbers)
             {
                 Console.WriteLine("error: register out of range\n");
-                return;
+                throw new Exception("error: register out of range\n");
             }
         }
 
@@ -383,8 +401,8 @@ namespace AK_Course_C_Sharp
         public static void testAddrArg(string arg)
         {
             // test numeric addressField
-            int num;
-            bool isRight = Int32.TryParse(arg, out num);
+            Int64 num;
+            bool isRight = Int64.TryParse(arg, out num);
 
             if (!isRight)
             {
