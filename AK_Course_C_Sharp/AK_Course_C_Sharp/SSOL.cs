@@ -78,7 +78,7 @@ namespace AK_Course_C_Sharp
 
         public static Int64 ConvertToNum(Int64 num)
         {
-            if((num & (1 << 15)) == 1)
+            if((num & (1 << 15)) != 0)
             {
                 num -= (1 << 16);
             }
