@@ -73,14 +73,16 @@ namespace AK_Course_C_Sharp
             {
                 writer.WriteLine($"\t\treg[{i}] - {state.reg[i]}");
             }
+            writer.WriteLine($"\n\tflag state: CF: {state.CarryFlag}");
+
             writer.WriteLine("end state\n");
         }
 
         public static Int64 ConvertToNum(Int64 num)
         {
-            if((num & (1 << 15)) != 0)
+            if((num & (1 << 23)) != 0)
             {
-                num -= (1 << 16);
+                num -= (1 << 24);
             }
             return (num);
         }
@@ -115,14 +117,14 @@ namespace AK_Course_C_Sharp
 
                 maxMem = (state.pc > maxMem) ? state.pc : maxMem;
 
-                // male the following code easier to read
+                // make the following code easier to read
                 opCode = state.mem[(Int64)state.pc] >> 36;
                 arg0  = (state.mem[state.pc] >> 30) & 63;
                 arg1 = (state.mem[state.pc] >> 24) & 63;
                 arg2 = (state.mem[state.pc]) & 63;
 
                 // for beg, lw, sw
-                addressField = ConvertToNum(state.mem[state.pc] & 0xFFFF);
+                addressField = ConvertToNum(state.mem[state.pc] & 0xFFFFFF);
 
                 state.pc++;
                 if(opCode == ASOL.Parse(ASOL.KeyWord.ADD))
@@ -136,7 +138,7 @@ namespace AK_Course_C_Sharp
                 else if(opCode == ASOL.Parse(ASOL.KeyWord.LW))
                 {
                     if(state.reg[arg0] + addressField < 0 ||
-                        state.reg[arg0] + addressField >= 65536)
+                        state.reg[arg0] + addressField >= ASOL.MaxNumLabels)
                     {
                         Console.WriteLine("address out of bounds");
                         Thread.Sleep(2000); Environment.Exit(1);
@@ -150,7 +152,7 @@ namespace AK_Course_C_Sharp
                 else if(opCode == ASOL.Parse(ASOL.KeyWord.SW))
                 {
                     if(state.reg[arg0] + addressField < 0 ||
-                        state.reg[arg0] + addressField >= 65536)
+                        state.reg[arg0] + addressField >= ASOL.MaxNumLabels)
                     {
                         Console.WriteLine("address out of bounds");
                         Thread.Sleep(2000); Environment.Exit(1);

@@ -49,3 +49,5 @@ C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\AK_Course_C_S
 C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\AK_Course_C_Sharp\bin\Debug\sv\Xceed.Wpf.AvalonDock.resources.dll
 C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\AK_Course_C_Sharp\bin\Debug\zh-Hans\Xceed.Wpf.AvalonDock.resources.dll
 C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\AK_Course_C_Sharp\obj\Debug\AK_Course_C_Sharp.csproj.CopyComplete
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\AK_Course_C_Sharp\bin\Debug\IntXLib.dll
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\AK_Course_C_Sharp\bin\Debug\IntXLib.xml

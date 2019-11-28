@@ -6,6 +6,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using IntXLib;
 
 
 namespace AK_Course_C_Sharp
@@ -66,6 +67,7 @@ namespace AK_Course_C_Sharp
 
         public static void Exec()
         {
+
             string inFileString = "", outFileString = "";
             StreamReader inFilePtr;
             StreamWriter outFilePtr;
@@ -203,6 +205,11 @@ namespace AK_Course_C_Sharp
                             return;
                         }
                     }
+                    // see if there are too many labels
+                    if(numLabels >= MaxNumLabels)
+                    {
+                        throw new Exception("error: too many labels");
+;                    }
 
                     labelArray.Add(label);
                     labelAddress.Add(address);
@@ -294,7 +301,7 @@ namespace AK_Course_C_Sharp
                     }
 
                     // truncate the offset field, in case its negative
-                    addressField = addressField & 0xFFFF;
+                    addressField = addressField & 0xFFFFFF;
 
                     if(opcode == "beq")
                     {
