@@ -11,7 +11,7 @@ namespace AK_Course_C_Sharp
 {
     public class SSOL
     {
-        public static int NUMREGS = 8;
+        public static int RegisterIncreasing { get; set; } = 8;
 
         public static void Exec()
         {
@@ -60,6 +60,7 @@ namespace AK_Course_C_Sharp
         public static void PrintState(State state ,ref StreamWriter writer)
         {
             int i;
+            LimitRegRange(RegisterIncreasing);
 
             writer.WriteLine("\n@@@\nstate:");
             writer.WriteLine($"\tpc {state.pc}");
@@ -69,7 +70,7 @@ namespace AK_Course_C_Sharp
                 writer.WriteLine($"\t\tmem[{i}] - {state.mem[i]}");
             }
             writer.WriteLine("\tregisters:\n");
-            for(i = 0; i < ASOL.RegNumbers; i++)
+            for(i = 0; i < RegisterIncreasing; i++)
             {
                 writer.WriteLine($"\t\treg[{i}] - {state.reg[i]}");
             }
@@ -106,6 +107,8 @@ namespace AK_Course_C_Sharp
             Int64 opCode = 0;
             Int64 maxMem = -1;
 
+            if (arg0 > RegisterIncreasing || arg1 > RegisterIncreasing) RegisterIncreasing *= 2;
+
             for(; ; instructions++)
             {
                 PrintState(state,ref writer);
@@ -125,6 +128,7 @@ namespace AK_Course_C_Sharp
 
                 // for beg, lw, sw
                 addressField = ConvertToNum(state.mem[state.pc] & 0xFFFFFF);
+                if (addressField > RegisterIncreasing) RegisterIncreasing *= 2;
 
                 state.pc++;
                 if(opCode == ASOL.Parse(ASOL.KeyWord.ADD))
@@ -256,6 +260,11 @@ namespace AK_Course_C_Sharp
                 }
             }
             writer.Close();
+        }
+
+        public static void LimitRegRange(int range)
+        {
+            if (range > 64) range = 64;
         }
         
     }
