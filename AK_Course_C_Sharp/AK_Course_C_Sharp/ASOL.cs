@@ -364,6 +364,9 @@ namespace AK_Course_C_Sharp
                         {
                             num = Int64.Parse(arg0);
                         }
+                        // check num value
+                        if (num < MinAddressField || num > MaxAddressField)
+                            throw new Exception($"cannot save value: {num}");
                     }
                     else if(opcode == "")
                     {

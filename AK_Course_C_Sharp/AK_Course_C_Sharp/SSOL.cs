@@ -262,12 +262,21 @@ namespace AK_Course_C_Sharp
                 }
                 else if(opCode == ASOL.Parse(ASOL.KeyWord.RCR))
                 {
-                    
-                        state.reg[arg2] = state.reg[arg0] >> (int)state.reg[arg1];
-                    if(state.CarryFlag == 0)
+                    Int64 localArg = state.reg[arg0];
+                    // Зсув циклічний вправо через carry flag
+                    for(int i = 0; i < state.reg[arg1]; i++)
                     {
-                        state.reg[arg2] = state.reg[arg2] | 0x800000000000;
+                        // перевірити молодший розряд
+                        Int64 firstDigit = localArg & (Int64)1;
+
+                        localArg = localArg >> 1;
+                        if(state.CarryFlag == 1)
+                        {
+                            localArg = localArg | 0x800000000000;
+                        }
+                        state.CarryFlag = firstDigit;
                     }
+                    state.reg[arg2] = localArg;
                     
                 }
                 #endregion

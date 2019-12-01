@@ -13,8 +13,8 @@ namespace AK_Course_C_Sharp
     {
         static void Main(string[] args)
         {
-            int i = -12;
-            i = i >> 3;
+            int i = Int32.MaxValue;
+           
             Console.WriteLine(i);
             Console.ReadKey();
             //SSOL.Exec();
