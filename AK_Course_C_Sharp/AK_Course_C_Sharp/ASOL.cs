@@ -65,8 +65,9 @@ namespace AK_Course_C_Sharp
             "add", "nand", "lw", "sw", "beq", "jarl", "halt", "mul", ".fill", "sl", "xadd", "xidiv", "xsub", "xor", "cmpe", "sar", "jma", "jml", "adc", "sbb", "rcr"
         };
 
-        public static void Exec()
+        public static void Exec(string codePath, ref string outFileName)
         {
+
 
             string inFileString = "", outFileString = "";
             StreamReader inFilePtr;
@@ -83,265 +84,303 @@ namespace AK_Course_C_Sharp
             BigInteger num = 0;
             BigInteger addressField = 0;
 
-            Console.Write("Input parent directory for .as and .mc files: ");
-            string fileDirectory = "";
-            fileDirectory = Console.ReadLine();
 
-            Console.Write("Input name for code file: ");
-            string codeFilePath = Console.ReadLine();
 
             try
             {
-                inFileString = Path.Combine(fileDirectory, codeFilePath);
-                Console.WriteLine($"File code path: {inFileString}");
-                Directory.CreateDirectory(fileDirectory);
+                inFileString = codePath;
 
                 if (!File.Exists(inFileString))
                     throw new Exception("File not exists");
             } catch(Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                throw new Exception(ex.Message);
                 return;
             }
 
             try
             {
-                outFileString = fileDirectory + "\\" + "machineCode" + ".mc";
-                Console.WriteLine($"Machine file path: {outFileString}");
-                Directory.CreateDirectory(fileDirectory);
+                string fileName = Path.GetFileNameWithoutExtension(codePath);
+                string fileDirectory = Path.GetDirectoryName(codePath);
+                outFileString = fileDirectory + "\\" + fileName + ".mc";
                 var localFile = File.Create(outFileString);
                 localFile.Close();
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
-                Thread.Sleep(5000); Environment.Exit(1);
+                throw new Exception(ex.Message);
+                return;
             }
 
             if (!File.Exists(inFileString))
             {
-                Console.WriteLine($"error: file: {inFileString} not exist\n");
-                Thread.Sleep(2000); Environment.Exit(1);
+               throw new Exception($"error: file: {inFileString} not exist\n");
+                return;
             }
             if (!File.Exists(outFileString))
             {
-                Console.WriteLine($"error: file: {outFileString} not exists\n");
-                Thread.Sleep(2000); Environment.Exit(1);
+                throw new Exception($"error: file: {outFileString} not exists\n");
+                return;
             }
             inFilePtr = new StreamReader(inFileString);
             outFilePtr = new StreamWriter(outFileString);
 
-            for (address = 0; ReadAndParse(inFilePtr,ref label,ref opcode,ref arg0,ref arg1,ref arg2); address++)
+            try
             {
-                // check for illegal opcode
-                if (!opCodeList.Contains(opcode))
+                for (address = 0; ReadAndParse(inFilePtr, ref label, ref opcode, ref arg0, ref arg1, ref arg2); address++)
                 {
-                    Console.WriteLine($"error: invalid opcode: {opcode}\n");
-                    return;
-                }
+                    if (label == "" && opcode == "" && arg0 == "" && arg1 == "" && arg2 == "")
+                        break;
 
-                // check register fields
-                List<string> testArg0Arg1 = new List<string>
+                    // check for illegal opcode
+                    if (!opCodeList.Contains(opcode))
+                    {
+                        throw new Exception($"error: invalid opcode: {opcode}");
+                        return;
+                    }
+
+                    // check register fields
+                    List<string> testArg0Arg1 = new List<string>
                 {
                     "add", "nand", "lw", "sw", "beq", "jarl", "mul", "sl", "xadd",
                     "xidiv", "xsub", "xor", "cmpe", "sar", "jma", "jml" ,"adc", "sbb", "rcr"
                 };
-                if (testArg0Arg1.Contains(opcode))
+                    if (testArg0Arg1.Contains(opcode))
+                    {
+                        testRegArg(arg0);
+                        testRegArg(arg1);
+                    }
+                    List<string> testArg2 = new List<string>
                 {
-                    testRegArg(arg0);
-                    testRegArg(arg1);
-                }
-                List<string> testArg2 = new List<string>
-                {
-                    "add", "nand", "mul", "sl", "xadd",
-                    "xidiv", "xsub", "xor", "cmpe", "sar" ,"adc", "sbb", "rcr"
+                    "add", "nand", "mul", "sl", 
+                    "xor", "cmpe", "sar" ,"adc", "sbb", "rcr"
                 };
-                if (testArg2.Contains(opcode))
-                {
-                    testRegArg(arg2);
-                }
-
-                // checkAddressFieldId
-                if(opcode == "lw" || opcode == "sw" || opcode == "beq")
-                {
-                    testAddrArg(arg2);
-                }
-                if(opcode == ".fill")
-                {
-                    testAddrArg(arg0);
-                }
-
-                // check for enough arguments
-                if ((opcode != "halt" && opcode != ".fill" && opcode != "jarl" 
-                    &&  opcode != "jma" && opcode != "jml" && arg2 == "")
-                    || (opcode == "jarl" && arg1 == "") || (opcode == ".fill" && arg0 == ""))
-                {
-                    Console.WriteLine($"error: at address: {address} not enough arguments");
-                    return;
-                }
-
-                if (label != "" )
-                {
-                    // make sure label starts with letter
-                    if (!Char.IsLetter(label[0]))
+                    if (testArg2.Contains(opcode))
                     {
-                        Console.WriteLine($"error: label: {label} doesnt start with letter\n");
-                        return;
+                        testRegArg(arg2);
                     }
 
-                    // Make sure label consists only from letters and numbers
-                    if (!label.All(item => Char.IsLetterOrDigit(item)))
+                    // checkAddressFieldId
+                    if (opcode == "lw" || opcode == "sw" || opcode == "beq")
                     {
-                        Console.WriteLine($"error: label: {label} has character other than letters and numbers\n");
-                        return;
+                        testAddrArg(arg2);
                     }
-
-                    // look for duplicate label
-                    for(i = 0; i < numLabels; i++)
+                    if (opcode == ".fill")
                     {
-                        if(label == labelArray[i])
+                        testAddrArg(arg0);
+                    }
+                    if(opcode == "xadd" || opcode == "xidiv" || opcode == "xsub")
+                    {
+                        Int64 localArg2 = Convert.ToInt64(arg2);
+                        if (localArg2 > MaxNumLabels)
                         {
-                            Console.WriteLine($"error: duplicate label: {label} at address: {address}");
-                            return;
+                            throw new Exception($"overflow memmory address: {localArg2}");
                         }
                     }
-                    // see if there are too many labels
-                    if(numLabels >= MaxNumLabels)
+
+                    // check for enough arguments
+                    if ((opcode != "halt" && opcode != ".fill" && opcode != "jarl"
+                        && opcode != "jma" && opcode != "jml" && arg2 == "")
+                        || (opcode == "jarl" && arg1 == "") || (opcode == ".fill" && arg0 == ""))
                     {
-                        throw new Exception("error: too many labels");
-;                    }
+                        throw new Exception($"error: at address: {address} not enough arguments");
+                        return;
+                    }
 
-                    labelArray.Add(label);
-                    labelAddress.Add(address);
-                }
-            }
-
-            // print machine code
-
-            // set stream
-            inFilePtr = new StreamReader(inFileString);
-            for(address = 0; ReadAndParse(inFilePtr,ref label,ref opcode,ref arg0,ref arg1,ref arg2); address++)
-            {
-                if(opcode == "add")
-                {
-                    num = ((Parse(KeyWord.ADD) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
-                }
-                else if(opcode == "nand")
-                {
-                    num = ((Parse(KeyWord.NAND) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
-                }
-                else if (opcode == "xadd")
-                {
-                    num = ((Parse(KeyWord.XADD) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
-                }
-                else if (opcode == "xidiv")
-                {
-                    num = ((Parse(KeyWord.XIDIV) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
-                }
-                else if (opcode == "xsub")
-                {
-                    num = ((Parse(KeyWord.XSUB) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
-                }
-                else if (opcode == "xor")
-                {
-                    num = ((Parse(KeyWord.XOR) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
-                }
-                else if (opcode == "cmpe")
-                {
-                    num = ((Parse(KeyWord.CMPE) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
-                }
-                else if (opcode == "sar")
-                {
-                    num = ((Parse(KeyWord.SAR) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
-                }
-                else if (opcode == "adc")
-                {
-                    num = ((Parse(KeyWord.ADC) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
-                }
-                else if (opcode == "sbb")
-                {
-                    num = ((Parse(KeyWord.SBB) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
-                }
-                else if (opcode == "rcr")
-                {
-                    num = ((Parse(KeyWord.RCR) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
-                }
-                else if(opcode == "jarl")
-                {
-                    num = (Parse(KeyWord.JARL) << 36) | Int64.Parse(arg0) << 30 | Int64.Parse(arg1) << 24;
-                }
-                else if(opcode == "halt")
-                {
-                   BigInteger loc = Parse(KeyWord.HALT);
-                   num = (loc << 36);
-                }
-                else if(opcode == "mul")
-                {
-                    num = ((Parse(KeyWord.MUL) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
-                }
-
-                else if(opcode == "lw" || opcode == "sw" || opcode == "beq" || opcode == "jma" || opcode == "jml")
-                {
-                    // if arg2 is symbolic then translate into an address
-                    if (arg2.All(item => Char.IsLetter(item)))
+                    if (label != "")
                     {
-                        addressField = transalateSymbol(labelArray, labelAddress, numLabels, arg2);
+                        // make sure label starts with letter
+                        if (!Char.IsLetter(label[0]))
+                        {
+                            throw new Exception($"error: label: {label} doesnt start with letter\n");
+                            return;
+                        }
+
+                        // Make sure label consists only from letters and numbers
+                        if (!label.All(item => Char.IsLetterOrDigit(item)))
+                        {
+                            throw new Exception($"error: label: {label} has character other than letters and numbers\n");
+                            return;
+                        }
+
+                        // look for duplicate label
+                        for (i = 0; i < numLabels; i++)
+                        {
+                            if (label == labelArray[i])
+                            {
+                                throw new Exception($"error: duplicate label: {label} at address: {address}");
+                                return;
+                            }
+                        }
+                        // see if there are too many labels
+                        if (numLabels >= MaxNumLabels)
+                        {
+                            throw new Exception("error: too many labels");
+                            ;
+                        }
+
+                        labelArray.Add(label);
+                        labelAddress.Add(address);
+                    }
+                }
+
+                // print machine code
+
+                // set stream
+                inFilePtr.Dispose(); inFilePtr.Close();
+                inFilePtr = new StreamReader(inFileString);
+                for (address = 0; ReadAndParse(inFilePtr, ref label, ref opcode, ref arg0, ref arg1, ref arg2); address++)
+                {
+                    if (opcode == "add")
+                    {
+                        num = ((Parse(KeyWord.ADD) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                    }
+                    else if (opcode == "nand")
+                    {
+                        num = ((Parse(KeyWord.NAND) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                    }
+                    #region AbsoluteAddr
+                    else if (opcode == "xadd")
+                    {
+                        num = ((Parse(KeyWord.XADD) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                    }
+                    else if (opcode == "xidiv")
+                    {
+                        num = ((Parse(KeyWord.XIDIV) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                    }
+                    else if (opcode == "xsub")
+                    {
+                        num = ((Parse(KeyWord.XSUB) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                    }
+                    #endregion
+                    else if (opcode == "xor")
+                    {
+                        num = ((Parse(KeyWord.XOR) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                    }
+                    else if (opcode == "cmpe")
+                    {
+                        num = ((Parse(KeyWord.CMPE) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                    }
+                    else if (opcode == "sar")
+                    {
+                        num = ((Parse(KeyWord.SAR) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                    }
+                    else if (opcode == "adc")
+                    {
+                        num = ((Parse(KeyWord.ADC) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                    }
+                    else if (opcode == "sbb")
+                    {
+                        num = ((Parse(KeyWord.SBB) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                    }
+                    else if (opcode == "rcr")
+                    {
+                        num = ((Parse(KeyWord.RCR) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                    }
+                    else if (opcode == "jarl")
+                    {
+                        num = (Parse(KeyWord.JARL) << 36) | Int64.Parse(arg0) << 30 | Int64.Parse(arg1) << 24;
+                    }
+                    else if (opcode == "halt")
+                    {
+                        BigInteger loc = Parse(KeyWord.HALT);
+                        num = (loc << 36);
+                    }
+                    else if (opcode == "mul")
+                    {
+                        num = ((Parse(KeyWord.MUL) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                    }
+
+                    else if (opcode == "lw" || opcode == "sw" || opcode == "beq" || opcode == "jma" || opcode == "jml")
+                    {
+                        // if arg2 is symbolic then translate into an address
+                        if (arg2.All(item => Char.IsLetter(item)))
+                        {
+                            addressField = transalateSymbol(labelArray, labelAddress, numLabels, arg2);
+
+                            if (opcode == "beq")
+                            {
+                                addressField = addressField - address - 1;
+                            }
+                        }
+                        else addressField = Int64.Parse(arg2);
+
+                        if (addressField < MinAddressField || addressField > MaxAddressField)
+                        {
+                            throw new Exception($"error: offset {addressField} out of range\n");
+                            return;
+                        }
+
+                        // truncate the offset field, in case its negative
+                        addressField = addressField & 0xFFFFFF;
 
                         if (opcode == "beq")
                         {
-                            addressField = addressField - address - 1;
+                            num = (Parse(KeyWord.BEQ) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24)
+                                | addressField;
                         }
-                    }
-                    else addressField = Int64.Parse(arg2);
-
-                    if(addressField < MinAddressField || addressField > MaxAddressField)
-                    {
-                        Console.WriteLine($"error: offset {addressField} out of range\n");
-                        return;
-                    }
-
-                    // truncate the offset field, in case its negative
-                    addressField = addressField & 0xFFFFFF;
-
-                    if(opcode == "beq")
-                    {
-                        num = (Parse(KeyWord.BEQ) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) 
-                            | addressField;
-                    }
-                    else
-                    {
-                        // lw or sw
-                        if(opcode == "lw")
+                        else if (opcode == "lw" || opcode == "sw")
                         {
-                            num = (Parse(KeyWord.LW) << 36) | (Int64.Parse(arg0) << 30) |
-                                (Int64.Parse(arg1) << 24) | addressField;
+                            // lw or sw
+                            if (opcode == "lw")
+                            {
+                                num = (Parse(KeyWord.LW) << 36) | (Int64.Parse(arg0) << 30) |
+                                    (Int64.Parse(arg1) << 24) | addressField;
+                            }
+                            else
+                            {
+                                num = (Parse(KeyWord.SW) << 36) | (Int64.Parse(arg0) << 30) |
+                                    (Int64.Parse(arg1) << 24) | addressField;
+                            }
                         }
                         else
                         {
-                            num = (Parse(KeyWord.SW) << 36) | (Int64.Parse(arg0) << 30) |
-                                (Int64.Parse(arg1) << 24) | addressField;
+                            // jma or jml
+                            if (opcode == "jma")
+                            {
+                                num = (Parse(KeyWord.JMA) << 36) | (Int64.Parse(arg0) << 30) |
+                                    (Int64.Parse(arg1) << 24) | addressField;
+                            }
+                            else if (opcode == "jml")
+                            {
+                                // it jml
+                                num = (Parse(KeyWord.JML) << 36) | (Int64.Parse(arg0) << 30) |
+                                    (Int64.Parse(arg1) << 24) | addressField;
+                            }
                         }
                     }
-                }
-                else if(opcode == ".fill")
-                {
-                    if(arg0.All(item => Char.IsLetter(item)))
+                    else if (opcode == ".fill")
                     {
-                        num = transalateSymbol(labelArray, labelAddress, numLabels, arg0);
+                        if (arg0.All(item => Char.IsLetter(item)))
+                        {
+                            num = transalateSymbol(labelArray, labelAddress, numLabels, arg0);
+                        }
+                        else
+                        {
+                            num = Int64.Parse(arg0);
+                        }
                     }
-                    else
+                    else if(opcode == "")
                     {
-                        num = Int64.Parse(arg0);
+                        continue;
                     }
-                }
-                //File.AppendAllText(outFileString, num.ToString() + "\n");
-                
-                outFilePtr.WriteLine(num.ToString());
-            }
-            //outFilePtr.WriteLine("proposal");
-            outFilePtr.Close();
+                    //File.AppendAllText(outFileString, num.ToString() + "\n");
 
-            return;
+                    outFilePtr.WriteLine(num.ToString());
+                }
+                //outFilePtr.WriteLine("proposal");
+                outFilePtr.Dispose();
+                outFilePtr.Close();
+                outFileName = outFileString;
+                inFilePtr.Dispose(); inFilePtr.Close();
+                return;
+            }
+            catch(Exception ex)
+            {
+                inFilePtr.Dispose(); inFilePtr.Close();
+                outFilePtr.Dispose(); outFilePtr.Close();
+                throw ex;
+            }
 
         }
 
@@ -390,13 +429,13 @@ namespace AK_Course_C_Sharp
 
             if (!isRight)
             {
-                Console.WriteLine("error: Incorect arg\n");
+                
                 throw new Exception("error: Incorect arg\n");
             }
 
             if(argNum < 0 || argNum >= RegNumbers)
             {
-                Console.WriteLine("error: register out of range\n");
+                
                 throw new Exception("error: register out of range\n");
             }
         }
@@ -418,7 +457,7 @@ namespace AK_Course_C_Sharp
 
                 if (!isLetterOnly)
                 {
-                    Console.WriteLine("error: bad character in addressField\n");
+                    throw new Exception("error: bad character in addressField\n");
                     return;
                 }
             }
@@ -436,7 +475,7 @@ namespace AK_Course_C_Sharp
 
             if(i > numLabels)
             {
-                Console.WriteLine($"error: missing label {symbol}\n");
+                
                 throw new Exception($"error: missing label {symbol}\n");
             }
 

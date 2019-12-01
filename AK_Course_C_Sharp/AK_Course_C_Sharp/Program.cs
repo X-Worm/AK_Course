@@ -40,12 +40,14 @@ namespace AK_Course_C_Sharp
                 {
                     case 1:
                         {
-                            ASOL.Exec();
+                            string locl = "";
+                            ASOL.Exec(@"c:\log\program.as", ref locl);
                             break;
                         }
                     case 2:
                         {
-                            SSOL.Exec();
+                            string local = "";
+                            SSOL.Exec(@"c:\log\program.mc",ref local );
                             break;
                         }
                     default:

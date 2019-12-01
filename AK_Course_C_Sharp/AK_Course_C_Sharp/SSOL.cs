@@ -13,23 +13,24 @@ namespace AK_Course_C_Sharp
     {
         public static int RegisterIncreasing { get; set; } = 8;
 
-        public static void Exec()
+        public static List<Int64> AbsouluteAddrReg = new List<Int64>();
+
+        public static void Exec(string machineCodePath, ref  string outFileName)
         {
             int i = 0;
             string line = "";
             State state = new State();
             state.CarryFlag = 0;
 
-            Console.Write("Input path to machine code: ");
-            string filePath = Console.ReadLine();
             StreamReader streamReader = null;
             try
             {
-                streamReader = new StreamReader(filePath);
+                streamReader = new StreamReader(machineCodePath);
+                outFileName = Path.GetDirectoryName(machineCodePath) + "\\" + Path.GetFileNameWithoutExtension(machineCodePath) + "_report.txt";
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                throw new Exception(ex.Message);
                 return;
             }
 
@@ -47,14 +48,14 @@ namespace AK_Course_C_Sharp
             {
                 if (state.numMemory >= ASOL.MaxNumLabels)
                 {
-                    Console.WriteLine("exceeded memory size");
-                    Environment.Exit(-1);
+                    throw new Exception("exceeded memory size");
                 }
                 line = streamReader.ReadLine();
+                if (line == "") break;
                 state.mem[state.numMemory] = Int64.Parse(line);
             }
 
-            Run(state);
+            Run(state, outFileName);
         }
 
         public static void PrintState(State state ,ref StreamWriter writer)
@@ -68,6 +69,14 @@ namespace AK_Course_C_Sharp
             for(i = 0; i < state.numMemory; i++)
             {
                 writer.WriteLine($"\t\tmem[{i}] - {state.mem[i]}");
+            }
+            if(AbsouluteAddrReg.Count != 0)
+            {
+                writer.WriteLine("\tmemory used as absolute value (xadd, xidiv, xsub)\n");
+                foreach(var j in AbsouluteAddrReg)
+                {
+                    writer.WriteLine($"\t\tmem[{j}] - {state.mem[j]}");
+                }
             }
             writer.WriteLine("\tregisters:\n");
             for(i = 0; i < RegisterIncreasing; i++)
@@ -88,14 +97,13 @@ namespace AK_Course_C_Sharp
             return (num);
         }
 
-        public static void Run(State state)
+        public static void Run(State state, string outFileName)
         {
-            Console.Write("Input file for report: ");
-            string filePath = Console.ReadLine();
+            
             StreamWriter writer = null;
             try
             {
-                writer = new StreamWriter(filePath);
+                writer = new StreamWriter(outFileName);
             }
             catch(Exception ex)
             {
@@ -114,8 +122,7 @@ namespace AK_Course_C_Sharp
                 PrintState(state,ref writer);
                 if(state.pc < 0 || state.pc >= ASOL.MaxNumLabels)
                 {
-                    Console.WriteLine("pc went out of the memory range\n");
-                    Thread.Sleep(5000); Environment.Exit(1);
+                    throw new Exception("pc went out of the memory range\n");
                 }
 
                 maxMem = (state.pc > maxMem) ? state.pc : maxMem;
@@ -144,8 +151,7 @@ namespace AK_Course_C_Sharp
                     if(state.reg[arg0] + addressField < 0 ||
                         state.reg[arg0] + addressField >= ASOL.MaxNumLabels)
                     {
-                        Console.WriteLine("address out of bounds");
-                        Thread.Sleep(2000); Environment.Exit(1);
+                        throw new Exception("address out of bounds");
                     }
                     state.reg[arg1] = state.mem[state.reg[arg0] + addressField];
                     if(state.reg[arg0] + addressField > maxMem)
@@ -158,8 +164,7 @@ namespace AK_Course_C_Sharp
                     if(state.reg[arg0] + addressField < 0 ||
                         state.reg[arg0] + addressField >= ASOL.MaxNumLabels)
                     {
-                        Console.WriteLine("address out of bounds");
-                        Thread.Sleep(2000); Environment.Exit(1);
+                        throw new Exception("address out of bounds");
                     }
                     state.mem[state.reg[arg0] + addressField] = state.reg[arg1];
                     if(state.reg[arg0] + addressField > maxMem)
@@ -200,23 +205,32 @@ namespace AK_Course_C_Sharp
                 // Додати і обміняти місцями 
                 else if(opCode == ASOL.Parse(ASOL.KeyWord.XADD))
                 {
-                    state.reg[arg2] = state.reg[arg0] + state.reg[arg1];
+                    arg2 = state.mem[state.pc-1] & 0xFFFFFF;
+                    state.mem[arg2] = state.reg[arg0] + state.reg[arg1];
                     Int64 temp = state.reg[arg0];
                     state.reg[arg0] = state.reg[arg1]; state.reg[arg1] = temp;
+
+                    AbsouluteAddrReg.Add(arg2);
                 }
                 // Знакове ділення і оьмін операндів місцями
                 else if(opCode == ASOL.Parse(ASOL.KeyWord.XIDIV))
                 {
-                    state.reg[arg2] = state.reg[arg0] / state.reg[arg1];
+                    arg2 = state.mem[state.pc-1] & 0xFFFFFF;
+                    state.mem[arg2] = state.reg[arg0] / state.reg[arg1];
                     Int64 temp = state.reg[arg0];
                     state.reg[arg0] = state.reg[arg1]; state.reg[arg1] = temp;
+
+                    AbsouluteAddrReg.Add(arg2);
                 }
                 // Віднімання і обмін операндів місцями
                 else if(opCode == ASOL.Parse(ASOL.KeyWord.XSUB))
                 {
-                    state.reg[arg2] = state.reg[arg0] - state.reg[arg1];
+                    arg2 = state.mem[state.pc-1] & 0xFFFFFF;
+                    state.mem[arg2] = state.reg[arg0] - state.reg[arg1];
                     Int64 temp = state.reg[arg0];
                     state.reg[arg0] = state.reg[arg1]; state.reg[arg1] = temp;
+
+                    AbsouluteAddrReg.Add(arg2);
                 }
 
                 // Додавання по модулю 2
@@ -248,14 +262,33 @@ namespace AK_Course_C_Sharp
                 }
                 else if(opCode == ASOL.Parse(ASOL.KeyWord.RCR))
                 {
-                    throw new NotImplementedException();
+                    
+                        state.reg[arg2] = state.reg[arg0] >> (int)state.reg[arg1];
+                    if(state.CarryFlag == 0)
+                    {
+                        state.reg[arg2] = state.reg[arg2] | 0x800000000000;
+                    }
+                    
                 }
                 #endregion
-
+                else if(opCode == ASOL.Parse(ASOL.KeyWord.JML))
+                {
+                    if (state.reg[arg0] < state.reg[arg1])
+                    {
+                        state.pc += addressField;
+                    }
+                }
+                else if(opCode == ASOL.Parse(ASOL.KeyWord.JMA))
+                {
+                    if (state.reg[arg0] > state.reg[arg1])
+                    {
+                        state.pc += addressField;
+                    }
+                }
                 else
                 {
                     writer.WriteLine($"illegal opcode {opCode}");
-                    Console.WriteLine($"illegal opcode {opCode}");
+                    throw new Exception($"illegal opcode {opCode}");
                     //Environment.Exit(1);
                 }
             }
