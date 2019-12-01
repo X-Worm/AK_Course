@@ -57,7 +57,8 @@ namespace AK_Course_C_Sharp
             JML = 15,
             ADC = 16,
             SBB = 17,
-            RCR = 18
+            RCR = 18,
+            CLCF = 19
         }
 
         public static List<string> opCodeList = new List<string>
@@ -289,6 +290,10 @@ namespace AK_Course_C_Sharp
                     else if (opcode == "mul")
                     {
                         num = ((Parse(KeyWord.MUL) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                    }
+                    else if (opcode == "clcf")
+                    {
+                        num = (Parse(KeyWord.CLCF) << 36);
                     }
 
                     else if (opcode == "lw" || opcode == "sw" || opcode == "beq" || opcode == "jma" || opcode == "jml")

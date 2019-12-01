@@ -285,6 +285,10 @@ namespace AK_Course_C_Sharp
                         state.pc += addressField;
                     }
                 }
+                else if(opCode == ASOL.Parse(ASOL.KeyWord.CLCF))
+                {
+                    state.CarryFlag = 0;
+                }
                 else
                 {
                     writer.WriteLine($"illegal opcode {opCode}");
