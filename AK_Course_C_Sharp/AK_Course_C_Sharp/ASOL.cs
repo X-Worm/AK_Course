@@ -303,7 +303,7 @@ namespace AK_Course_C_Sharp
                         {
                             addressField = transalateSymbol(labelArray, labelAddress, numLabels, arg2);
 
-                            if (opcode == "beq")
+                            if (opcode == "beq" || opcode == "jma" || opcode == "jml")
                             {
                                 addressField = addressField - address - 1;
                             }
@@ -340,6 +340,7 @@ namespace AK_Course_C_Sharp
                         }
                         else
                         {
+                            
                             // jma or jml
                             if (opcode == "jma")
                             {

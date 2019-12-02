@@ -1,0 +1,153 @@
+
+@@@
+state:
+	pc 0
+	memory:
+
+		mem[0] - 137455730693
+		mem[1] - 137472507910
+		mem[2] - 964236935169
+		mem[3] - 2164260867
+		mem[4] - 412316860416
+		mem[5] - 1
+		mem[6] - 2
+	registers:
+
+		reg[0] - 0
+		reg[1] - 0
+		reg[2] - 0
+		reg[3] - 0
+		reg[4] - 0
+		reg[5] - 0
+		reg[6] - 0
+		reg[7] - 0
+
+	checking overflowed registers
+
+
+	flag state: CF: 0
+end state
+
+
+@@@
+state:
+	pc 1
+	memory:
+
+		mem[0] - 137455730693
+		mem[1] - 137472507910
+		mem[2] - 964236935169
+		mem[3] - 2164260867
+		mem[4] - 412316860416
+		mem[5] - 1
+		mem[6] - 2
+	registers:
+
+		reg[0] - 0
+		reg[1] - 1
+		reg[2] - 0
+		reg[3] - 0
+		reg[4] - 0
+		reg[5] - 0
+		reg[6] - 0
+		reg[7] - 0
+
+	checking overflowed registers
+
+
+	flag state: CF: 0
+end state
+
+
+@@@
+state:
+	pc 2
+	memory:
+
+		mem[0] - 137455730693
+		mem[1] - 137472507910
+		mem[2] - 964236935169
+		mem[3] - 2164260867
+		mem[4] - 412316860416
+		mem[5] - 1
+		mem[6] - 2
+	registers:
+
+		reg[0] - 0
+		reg[1] - 1
+		reg[2] - 2
+		reg[3] - 0
+		reg[4] - 0
+		reg[5] - 0
+		reg[6] - 0
+		reg[7] - 0
+
+	checking overflowed registers
+
+
+	flag state: CF: 0
+end state
+
+
+@@@
+state:
+	pc 4
+	memory:
+
+		mem[0] - 137455730693
+		mem[1] - 137472507910
+		mem[2] - 964236935169
+		mem[3] - 2164260867
+		mem[4] - 412316860416
+		mem[5] - 1
+		mem[6] - 2
+	registers:
+
+		reg[0] - 0
+		reg[1] - 1
+		reg[2] - 2
+		reg[3] - 0
+		reg[4] - 0
+		reg[5] - 0
+		reg[6] - 0
+		reg[7] - 0
+
+	checking overflowed registers
+
+
+	flag state: CF: 0
+end state
+
+machine halted
+total of 4 instructions executed
+final state of machine:
+
+@@@
+state:
+	pc 5
+	memory:
+
+		mem[0] - 137455730693
+		mem[1] - 137472507910
+		mem[2] - 964236935169
+		mem[3] - 2164260867
+		mem[4] - 412316860416
+		mem[5] - 1
+		mem[6] - 2
+	registers:
+
+		reg[0] - 0
+		reg[1] - 1
+		reg[2] - 2
+		reg[3] - 0
+		reg[4] - 0
+		reg[5] - 0
+		reg[6] - 0
+		reg[7] - 0
+
+	checking overflowed registers
+
+
+	flag state: CF: 0
+end state
+
