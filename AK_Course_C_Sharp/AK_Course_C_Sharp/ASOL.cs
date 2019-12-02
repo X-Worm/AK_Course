@@ -63,7 +63,7 @@ namespace AK_Course_C_Sharp
 
         public static List<string> opCodeList = new List<string>
         {
-            "add", "nand", "lw", "sw", "beq", "jarl", "halt", "mul", ".fill", "sl", "xadd", "xidiv", "xsub", "xor", "cmpe", "sar", "jma", "jml", "adc", "sbb", "rcr"
+            "add", "nand", "lw", "sw", "beq", "jarl", "halt", "mul", ".fill", "sl", "xadd", "xidiv", "xsub", "xor", "cmpe", "sar", "jma", "jml", "adc", "sbb", "rcr", "clcf"
         };
 
         public static void Exec(string codePath, ref string outFileName)
@@ -365,7 +365,7 @@ namespace AK_Course_C_Sharp
                             num = Int64.Parse(arg0);
                         }
                         // check num value
-                        if (num < MinAddressField || num > MaxAddressField)
+                        if (num < -140737488355328 || num > 140737488355327)
                             throw new Exception($"cannot save value: {num}");
                     }
                     else if(opcode == "")

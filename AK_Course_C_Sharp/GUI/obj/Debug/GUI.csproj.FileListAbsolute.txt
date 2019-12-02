@@ -11,3 +11,17 @@ C:\Users\Vasyl\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\bin\Debug\AK_Cou
 C:\Users\Vasyl\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\bin\Debug\AK_Course_C_Sharp.pdb
 C:\Users\Vasyl\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\bin\Debug\AK_Course_C_Sharp.exe.config
 C:\Users\Vasyl\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\obj\Debug\GUI.csproj.CopyComplete
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\bin\Debug\GUI.exe.config
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\bin\Debug\GUI.exe
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\bin\Debug\GUI.pdb
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\bin\Debug\AK_Course_C_Sharp.exe
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\bin\Debug\AK_Course_C_Sharp.pdb
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\bin\Debug\AK_Course_C_Sharp.exe.config
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\obj\Debug\GUI.csprojAssemblyReference.cache
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\obj\Debug\GUI.Form1.resources
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\obj\Debug\GUI.Properties.Resources.resources
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\obj\Debug\GUI.csproj.GenerateResource.cache
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\obj\Debug\GUI.csproj.CoreCompileInputs.cache
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\obj\Debug\GUI.csproj.CopyComplete
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\obj\Debug\GUI.exe
+C:\Users\vasyl.kindii\Documents\GitHub\AK_Course\AK_Course_C_Sharp\GUI\obj\Debug\GUI.pdb

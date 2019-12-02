@@ -83,6 +83,16 @@ namespace AK_Course_C_Sharp
             {
                 writer.WriteLine($"\t\treg[{i}] - {state.reg[i]}");
             }
+
+            writer.WriteLine("\n\tchecking overflowed registers\n");
+            // check overflow registers
+            for(i = 0; i < ASOL.RegNumbers; i++)
+            {
+                if(state.reg[i] > 140737488355327 || state.reg[i] < -140737488355328)
+                {
+                    writer.WriteLine($"\t\tValue of reg[{i}] overflowed: {state.reg[i]}\n");
+                }
+            }
             writer.WriteLine($"\n\tflag state: CF: {state.CarryFlag}");
 
             writer.WriteLine("end state\n");
@@ -255,10 +265,14 @@ namespace AK_Course_C_Sharp
                 else if(opCode == ASOL.Parse(ASOL.KeyWord.ADC))
                 {
                     state.reg[arg2] = state.reg[arg1] + state.reg[arg0] + state.CarryFlag;
+                    if (state.reg[arg2] > 140737488355327)
+                        state.CarryFlag = 1;
                 }
                 else if(opCode == ASOL.Parse(ASOL.KeyWord.SBB))
                 {
                     state.reg[arg2] = state.reg[arg0] - state.reg[arg1] - state.CarryFlag;
+                    if (state.reg[arg2] < -140737488355328)
+                        state.CarryFlag = 1;
                 }
                 else if(opCode == ASOL.Parse(ASOL.KeyWord.RCR))
                 {
@@ -270,7 +284,9 @@ namespace AK_Course_C_Sharp
                         Int64 firstDigit = localArg & (Int64)1;
 
                         localArg = localArg >> 1;
-                        if(state.CarryFlag == 1)
+
+                        localArg = localArg & 0x7FFFFFFFFFFFFFFF;
+                        if (state.CarryFlag == 1)
                         {
                             localArg = localArg | 0x800000000000;
                         }
