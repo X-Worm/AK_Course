@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AK_Course_C_Sharp;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -19,6 +20,7 @@ namespace GUI
             label1.Text = "NewFile";
             label2.Text += "0";
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            listBox1.DataSource = ASOL.opCodeList.Select(item => item.ToUpper()).ToList();
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -295,6 +297,37 @@ namespace GUI
                     }
                 }
             }
+        }
+
+        private void richTextBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            
+        }
+
+        private void richTextBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            
+            if (e.KeyCode == Keys.F10)
+            {
+                richTextBox1.Text += " " + listBox1.SelectedItem.ToString().ToLower();
+                richTextBox1.SelectionStart = richTextBox1.Text.Length;
+                richTextBox1.Focus();
+                e.SuppressKeyPress = true;
+            }
+            
+        }
+
+        private void toolStripButton3_Click(object sender, EventArgs e)
+        {
+            richTextBox1.Text += " " + listBox1.SelectedItem.ToString().ToLower();
+            richTextBox1.SelectionStart = richTextBox1.Text.Length;
+            richTextBox1.Focus();
+        }
+
+        private void helpToolStripButton_Click(object sender, EventArgs e)
+        {
+            HelpForm form = new HelpForm();
+            form.Show();
         }
     }
 }

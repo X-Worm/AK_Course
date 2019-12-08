@@ -13,7 +13,7 @@ namespace AK_Course_C_Sharp
     {
         public static int RegisterIncreasing { get; set; } = 8;
 
-        public static List<Int64> AbsouluteAddrReg = new List<Int64>();
+        public static  List<Int64> AbsouluteAddrReg = new List<Int64>();
 
         public static void Exec(string machineCodePath, ref  string outFileName)
         {
@@ -54,7 +54,8 @@ namespace AK_Course_C_Sharp
                 if (line == "") break;
                 state.mem[state.numMemory] = Int64.Parse(line);
             }
-
+            streamReader.Close(); streamReader.Dispose();
+            AbsouluteAddrReg.Clear();
             Run(state, outFileName);
         }
 

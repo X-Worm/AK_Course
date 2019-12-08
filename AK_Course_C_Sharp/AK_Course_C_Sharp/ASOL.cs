@@ -172,7 +172,10 @@ namespace AK_Course_C_Sharp
                     }
                     if(opcode == "xadd" || opcode == "xidiv" || opcode == "xsub")
                     {
-                        Int64 localArg2 = Convert.ToInt64(arg2);
+                        // check if it is hex code
+                        if (arg2.Length < 2 ||  arg2.Substring(0, 2) != "0x")
+                            throw new Exception("in xadd, xidiv, xsub operands destMem must be hex type. Example \' 0x0001 \'");
+                        Int64 localArg2 = Convert.ToInt64(arg2, 16);
                         if (localArg2 > MaxNumLabels)
                         {
                             throw new Exception($"overflow memmory address: {localArg2}");
@@ -243,15 +246,15 @@ namespace AK_Course_C_Sharp
                     #region AbsoluteAddr
                     else if (opcode == "xadd")
                     {
-                        num = ((Parse(KeyWord.XADD) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                        num = ((Parse(KeyWord.XADD) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Convert.ToInt64(arg2, 16));
                     }
                     else if (opcode == "xidiv")
                     {
-                        num = ((Parse(KeyWord.XIDIV) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                        num = ((Parse(KeyWord.XIDIV) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Convert.ToInt64(arg2, 16));
                     }
                     else if (opcode == "xsub")
                     {
-                        num = ((Parse(KeyWord.XSUB) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Int64.Parse(arg2));
+                        num = ((Parse(KeyWord.XSUB) << 36) | (Int64.Parse(arg0) << 30) | (Int64.Parse(arg1) << 24) | Convert.ToInt64(arg2, 16));
                     }
                     #endregion
                     else if (opcode == "xor")
@@ -438,13 +441,11 @@ namespace AK_Course_C_Sharp
 
             if (!isRight)
             {
-                
                 throw new Exception("error: Incorect arg\n");
             }
 
             if(argNum < 0 || argNum >= RegNumbers)
             {
-                
                 throw new Exception("error: register out of range\n");
             }
         }
