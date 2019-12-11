@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="AK_Course_C_Sharp.ASOL">
+    <Position X="0.5" Y="0.5" Width="1.75" />
+    <NestedTypes>
+      <Enum Name="AK_Course_C_Sharp.ASOL.KeyWord" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ASOL.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAgEAAIggEAAAEAAAAAAAAAggAgABAAAAAAAQAAAAg=</HashCode>
+      <FileName>ASOL.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AK_Course_C_Sharp.SSOL">
+    <Position X="2.5" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AABAAEAAAAAAAAAAAAAAAAAQAAQAABAAAAAAAAAAAQI=</HashCode>
+      <FileName>SSOL.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AK_Course_C_Sharp.State">
+    <Position X="4.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAAAAAAAAAAIAAQAAABAAEAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SSOL.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
